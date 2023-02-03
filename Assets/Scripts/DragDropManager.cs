@@ -35,17 +35,25 @@ public class DragDropManager : MonoBehaviour
             Ray worldDirection = Camera.main.ScreenPointToRay(Input.mousePosition, Camera.MonoOrStereoscopicEye.Mono);
             //Vector3 worldOrigin = Camera.main.ViewportToWorldPoint(e.mousePosition);
             RaycastHit[] raycastHits = Physics.RaycastAll(worldDirection);
-            foreach (RaycastHit hit in raycastHits)
+            if (raycastHits.Length > 0)
             {
-                if (hit.transform.GetComponent<drag>() != null)
+                RaycastHit frontRaycast = raycastHits[0];
+                foreach (RaycastHit hit in raycastHits)
                 {
-                    currentDraggedItem = hit.transform.GetComponent<drag>();
-                    currentDraggedItem.originalPosition = hit.transform.position;
-                    //mouse position only
-                    offset = currentDraggedItem.originalPosition - Camera.main.ScreenToWorldPoint(Input.mousePosition);
-                    dropSuccessful = false;
-                    break;
+                    if (hit.transform.GetComponent<drag>() != null)
+                    {
+                        SpriteRenderer checkedHit = hit.transform.GetComponent<SpriteRenderer>();
+                        if (checkedHit.sortingOrder > frontRaycast.transform.GetComponent<SpriteRenderer>().sortingOrder)
+                        {
+                            frontRaycast = hit;
+                        }
+                    }
                 }
+                currentDraggedItem = frontRaycast.transform.GetComponent<drag>();
+                currentDraggedItem.originalPosition = frontRaycast.transform.position;
+                //mouse position only
+                offset = currentDraggedItem.originalPosition - Camera.main.ScreenToWorldPoint(Input.mousePosition);
+                dropSuccessful = false;
             }
         }
         else if (Input.GetMouseButtonUp(0))
@@ -54,20 +62,32 @@ public class DragDropManager : MonoBehaviour
             {
                 Ray worldDirection = Camera.main.ScreenPointToRay(Input.mousePosition, Camera.MonoOrStereoscopicEye.Mono);
                 //Vector3 worldOrigin = Camera.main.ViewportToWorldPoint(e.mousePosition);
-                RaycastHit[] raycastHits = Physics.RaycastAll(worldDirection);               
-                foreach (RaycastHit hit in raycastHits)
-                {                   
-                    if (hit.transform.GetComponent<drop>() != null)
+                RaycastHit[] raycastHits = Physics.RaycastAll(worldDirection);       
+                //order raycast 
+                if (raycastHits.Length > 0)
+                {
+                    RaycastHit frontRaycast = raycastHits[0];
+                    foreach (RaycastHit hit in raycastHits)
                     {
+                        if (hit.transform.GetComponent<drop>() != null)
+                        {
+                            SpriteRenderer checkedHit = hit.transform.GetComponent<SpriteRenderer>();
+                            if(checkedHit.sortingOrder > frontRaycast.transform.GetComponent<SpriteRenderer>().sortingOrder)
+                            {
+                                frontRaycast = hit;
+                            }
+                        }
                         
-                        Vector3 newPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition) + offset;
-                        //= hit.transform.GetComponent<drop>().transform.position;
-                        currentDraggedItem.transform.position = newPosition;
-                        currentDraggedItem = null;
-                        dropSuccessful = true;
-                        break;
                     }
+                    //using the front hit
+                    Vector3 newPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition) + offset;
+                    currentDraggedItem.transform.position = newPosition;
+                    currentDraggedItem.OnDropThis(frontRaycast.transform.GetComponent<drop>());
+                    currentDraggedItem = null;
+                    dropSuccessful = true;
+                    
                 }
+                
                 if (!dropSuccessful)
                 {
                     currentDraggedItem.transform.position = currentDraggedItem.originalPosition;
@@ -78,8 +98,4 @@ public class DragDropManager : MonoBehaviour
         }
     }
 
-    public void WhereDropped()
-    {
-
-    }
 }

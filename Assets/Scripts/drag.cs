@@ -16,8 +16,8 @@ public class drag : MonoBehaviour
         return DragDropManager.Instance.currentDraggedItem == this;
     }
 
-    public virtual void OnDraggableEntered()
+    public virtual void OnDropThis(drop droppedOn)
     {
-
+        
     }
 }

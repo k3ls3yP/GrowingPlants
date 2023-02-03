@@ -5,15 +5,30 @@ using UnityEngine;
 public class toolsFunctionality : drag
 {
 
-    public override void OnDraggableEntered()
+    public override void OnDropThis(drop droppedOn)
     {
-        
-    }
-    public void OnMouseUp()
-    {
-        Debug.Log($"{this.name} dropped");
-    }
+        pot potObject = droppedOn as pot;
+        if (potObject != null)
+        {
+            switch (this.tag)
+            {
+                case "dirt":
+                    Debug.Log($"{this.name} is dropped on {potObject}");
+                    potObject.SetHasDirt(true);
+                    break;
+                case "water":
+                    Debug.Log($"{this.name} is dropped on {potObject}");
+                    potObject.SetHasWater(true);
+                    break;
+                case "seed":
+                    Debug.Log($"{this.name} is dropped on {potObject}");
+                    potObject.SetHasSeed(true);
+                    break;
 
+            }
+            potObject.ShouldGrow();
+        }
+    }
 
 
 }
