@@ -4,7 +4,14 @@ using UnityEngine;
 
 public class drop : MonoBehaviour
 {
-    public virtual void isDroppable()
+    public bool dropOriginalSpotOnly;
+    public Vector3 originalPosition;
+
+    private void Start()
+    {
+        originalPosition = transform.position;
+    }
+    public virtual void onDrop()
     {
         
 

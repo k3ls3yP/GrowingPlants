@@ -49,11 +49,14 @@ public class DragDropManager : MonoBehaviour
                         }
                     }
                 }
-                currentDraggedItem = frontRaycast.transform.GetComponent<drag>();
-                currentDraggedItem.originalPosition = frontRaycast.transform.position;
-                //mouse position only
-                offset = currentDraggedItem.originalPosition - Camera.main.ScreenToWorldPoint(Input.mousePosition);
-                dropSuccessful = false;
+                if (frontRaycast.transform.GetComponent<drag>() != null)
+                {
+                    currentDraggedItem = frontRaycast.transform.GetComponent<drag>();
+                    currentDraggedItem.originalPosition = frontRaycast.transform.position;
+                    //mouse position only
+                    offset = currentDraggedItem.originalPosition - Camera.main.ScreenToWorldPoint(Input.mousePosition);
+                    dropSuccessful = false;
+                }
             }
         }
         else if (Input.GetMouseButtonUp(0))
@@ -62,29 +65,49 @@ public class DragDropManager : MonoBehaviour
             {
                 Ray worldDirection = Camera.main.ScreenPointToRay(Input.mousePosition, Camera.MonoOrStereoscopicEye.Mono);
                 //Vector3 worldOrigin = Camera.main.ViewportToWorldPoint(e.mousePosition);
-                RaycastHit[] raycastHits = Physics.RaycastAll(worldDirection);       
+                RaycastHit[] raycastHits = Physics.RaycastAll(worldDirection);
+                //print(raycastHits.Length);
                 //order raycast 
                 if (raycastHits.Length > 0)
                 {
-                    RaycastHit frontRaycast = raycastHits[0];
+                    RaycastHit frontRaycast = new RaycastHit();
                     foreach (RaycastHit hit in raycastHits)
                     {
-                        if (hit.transform.GetComponent<drop>() != null)
+                        //Has drop and not itself
+                        if (hit.transform.GetComponent<drop>() != null && currentDraggedItem.transform !=hit.transform)
                         {
                             SpriteRenderer checkedHit = hit.transform.GetComponent<SpriteRenderer>();
-                            if(checkedHit.sortingOrder > frontRaycast.transform.GetComponent<SpriteRenderer>().sortingOrder)
+                            //what's on top
+                            if (frontRaycast.transform == null)
                             {
                                 frontRaycast = hit;
+                            }
+                            else if (checkedHit.sortingOrder >= frontRaycast.transform.GetComponent<SpriteRenderer>().sortingOrder)
+                            {
+                                frontRaycast = hit;
+                                
                             }
                         }
                         
                     }
-                    //using the front hit
-                    Vector3 newPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition) + offset;
-                    currentDraggedItem.transform.position = newPosition;
-                    currentDraggedItem.OnDropThis(frontRaycast.transform.GetComponent<drop>());
-                    currentDraggedItem = null;
-                    dropSuccessful = true;
+
+                    if (currentDraggedItem.transform != frontRaycast.transform && frontRaycast.transform != null)
+                    {
+                        //using the front hit
+                        Vector3 newPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition) + offset;
+                        currentDraggedItem.transform.position = newPosition;
+                        currentDraggedItem.OnDropThis(frontRaycast.transform.GetComponent<drop>());
+                        if (!currentDraggedItem.GetPutBack())
+                        {
+                            dropSuccessful = false;
+                        }
+                        else
+                        {
+                            dropSuccessful = true;
+                            currentDraggedItem = null;
+                        }
+                        
+                    }
                     
                 }
                 

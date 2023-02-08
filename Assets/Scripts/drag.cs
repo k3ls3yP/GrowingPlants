@@ -5,6 +5,7 @@ using UnityEngine;
 public class drag : MonoBehaviour
 {
     public Vector3 originalPosition;
+    public bool putBack;
 
     private void Start()
     {
@@ -19,5 +20,9 @@ public class drag : MonoBehaviour
     public virtual void OnDropThis(drop droppedOn)
     {
         
+    }
+    public bool GetPutBack()
+    {
+        return putBack;
     }
 }

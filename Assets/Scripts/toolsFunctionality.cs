@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class toolsFunctionality : drag
 {
-
+    public int flowerType;
     public override void OnDropThis(drop droppedOn)
     {
         pot potObject = droppedOn as pot;
@@ -13,16 +13,16 @@ public class toolsFunctionality : drag
             switch (this.tag)
             {
                 case "dirt":
-                    Debug.Log($"{this.name} is dropped on {potObject}");
+                    //Debug.Log($"{this.name} is dropped on {potObject}");
                     potObject.SetHasDirt(true);
                     break;
                 case "water":
-                    Debug.Log($"{this.name} is dropped on {potObject}");
+                    //Debug.Log($"{this.name} is dropped on {potObject}");
                     potObject.SetHasWater(true);
                     break;
                 case "seed":
-                    Debug.Log($"{this.name} is dropped on {potObject}");
-                    potObject.SetHasSeed(true);
+                    //Debug.Log($"{this.name} is dropped on {potObject}");
+                    potObject.SetHasSeed(true, flowerType);
                     break;
 
             }
